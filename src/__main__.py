@@ -1,6 +1,6 @@
-def main():
+def main() -> None:
     print("test")
 
 
 if __name__ == "__main__":
-    print("test")
+    main()
