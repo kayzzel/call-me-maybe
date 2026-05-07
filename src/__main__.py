@@ -22,7 +22,7 @@ def get_valid_mask(
             generated_so_far: str,
             valid_names: list[str],
             id_to_token_array: list[str],
-            target_vocab_size: int  # Add this parameter
+            target_vocab_size: int
         ) -> np.ndarray:
 
     candidates = np.char.add(generated_so_far, id_to_token_array)
@@ -78,22 +78,22 @@ Function name: """
 def main() -> None:
     model = Small_LLM_Model()
 
-    user_prompt = "what is the square root of 81"
+    user_prompt = "how can I do a test ?"
     functions = [
         "fn_add_numbers",
         "fn_greet",
         "fn_reverse_string",
         "fn_get_square_root",
         "fn_substitute_string_with_regex",
-        "fn_reverse_string"
-            ]
+        "fn_reverse_string",
+        "test",
+    ]
 
     vocab = get_json_from_file(model.get_path_to_vocab_file())
     if isinstance(vocab, str):
         return
 
-    for _ in range(10):
-        print(get_function_name(model, vocab, user_prompt, functions))
+    print(get_function_name(model, vocab, user_prompt, functions))
 
 
 if __name__ == "__main__":
