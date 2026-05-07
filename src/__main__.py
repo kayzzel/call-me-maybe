@@ -21,18 +21,21 @@ def get_json_from_file(filename: str) -> dict[str, Any] | str:
 def get_valid_mask(
             generated_so_far: str,
             valid_names: list[str],
-            id_to_token_array: list[str]
+            id_to_token_array: list[str],
+            target_vocab_size: int  # Add this parameter
         ) -> np.ndarray:
 
-    vocab_size: int = len(id_to_token_array)
     candidates = np.char.add(generated_so_far, id_to_token_array)
 
-    mask = np.zeros(vocab_size, dtype=bool)
+    mask = np.zeros(target_vocab_size, dtype=bool)
 
+    temp_mask = np.zeros(len(id_to_token_array), dtype=bool)
     for name in valid_names:
-        mask |= np.frompyfunc(
+        temp_mask |= np.frompyfunc(
                 lambda c: name.startswith(c), 1, 1
             )(candidates).astype(bool)
+
+    mask[:len(temp_mask)] = temp_mask
 
     return mask
 
@@ -54,14 +57,20 @@ Function name: """
     tokens = model.encode(prompt)[0].tolist()
 
     while name not in functions_name:
-        mask = get_valid_mask(name, functions_name, list(vocab.keys()))
-
         logits = np.array(model.get_logits_from_input_ids(tokens))
+
+        mask = get_valid_mask(
+                name,
+                functions_name,
+                list(vocab.keys()),
+                len(logits)
+            )
         logits[~mask] = -np.inf
 
         next_token_id = np.argmax(logits)
 
         name += model.decode([next_token_id])
+        tokens.append(next_token_id)
 
     return name
 
@@ -69,13 +78,22 @@ Function name: """
 def main() -> None:
     model = Small_LLM_Model()
 
-    user_prompt = "how can I add 2 and 3 ?"
+    user_prompt = "what is the square root of 81"
+    functions = [
+        "fn_add_numbers",
+        "fn_greet",
+        "fn_reverse_string",
+        "fn_get_square_root",
+        "fn_substitute_string_with_regex",
+        "fn_reverse_string"
+            ]
 
     vocab = get_json_from_file(model.get_path_to_vocab_file())
     if isinstance(vocab, str):
         return
 
-    print(get_function_name(model, vocab, user_prompt, ["fn_add", "fn_test"]))
+    for _ in range(10):
+        print(get_function_name(model, vocab, user_prompt, functions))
 
 
 if __name__ == "__main__":
