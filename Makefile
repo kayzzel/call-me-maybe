@@ -4,10 +4,14 @@ NAME		=	call-me-maybe
 
 SRC			=	src
 VENV		=	.venv
+MODEL		=	llm_sdk
 
-FUNCIONS	?=	"data/functions/functions.json"
-INPUT		?=	"data/input/input.json"
+FUNCIONS	?=	"data/input/functions_definition.json"
+INPUT		?=	"data/input/function_calling_tests.json"
 OUTPUT		?=	"data/ouput/output.json"
+
+EXCLUDE				=	--exclude $(VENV),$(MODEL)
+EXCLUDE_MYPY		=	--exclude $(VENV) --exclude $(MODEL)
 
 #-------------------------------- RULES --------------------------------------#
 
@@ -32,13 +36,13 @@ test-cov: check_uv
 	@echo "Coverage report generated in htmlcov/"
 
 lint: check_uv
-	uv run flake8 . --exclude $(VENV)
+	uv run flake8 . $(EXCLUDE)
 	uv run mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports \
-		--disallow-untyped-defs --check-untyped-defs --exclude $(VENV)
+		--disallow-untyped-defs --check-untyped-defs $(EXCLUDE_MYPY)
 
 lint-strict: check_uv
-	uv run flake8 . --exclude $(VENV)
-	uv run mypy . --strict --exclude $(VENV)
+	uv run flake8 . $(EXCLUDE)
+	uv run mypy . --strict $(EXCLUDE_MYPY)
 
 clean:
 	find . -name "__pycache__" -type d -exec rm -rf "{}" +
