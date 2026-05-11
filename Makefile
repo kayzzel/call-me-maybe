@@ -11,7 +11,7 @@ INPUT		?=	"data/input/function_calling_tests.json"
 OUTPUT		?=	"data/ouput/output.json"
 
 EXCLUDE				=	--exclude $(VENV),$(MODEL)
-EXCLUDE_MYPY		=	--exclude $(VENV) --exclude $(MODEL)
+EXCLUDE_MYPY 		=	--exclude $(VENV) --exclude $(MODEL)
 
 #-------------------------------- RULES --------------------------------------#
 
@@ -42,7 +42,7 @@ lint: check_uv
 
 lint-strict: check_uv
 	uv run flake8 . $(EXCLUDE)
-	uv run mypy . --strict $(EXCLUDE_MYPY)
+	uv run mypy . $(EXCLUDE_MYPY) --strict
 
 clean:
 	find . -name "__pycache__" -type d -exec rm -rf "{}" +

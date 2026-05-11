@@ -1,21 +1,42 @@
-from llm_sdk.llm_sdk import Small_LLM_Model
+from sys import argv
+
+from .app import app_usage, App
+from .get_files import (
+        pars_params,
+        get_prompts_from_file,
+        get_functions_from_file
+    )
 
 
 def main() -> None:
-    model = Small_LLM_Model()
-
-    user_prompt = "what is the square root of 81"
-
-    vocab = get_json_from_file(model.get_path_to_vocab_file())
-    functions = get_json_from_file("data/input/functions_definition.json")
-    if isinstance(vocab, str) or isinstance(functions, str):
+    try:
+        params = pars_params(argv)
+    except ValueError as err:
+        print(f"Error: {err}")
+        print(app_usage("params"))
         return
-    func_name = (get_function_name(model, vocab, user_prompt, functions))
-    function = [f for f in functions if f['name'] == func_name][0]
-    print(list(function['parameters'].values())[0]['type'])
-    print("name:", func_name)
-    parameters = get_parametters(model, function, user_prompt)
-    print("parameters:", parameters)
+
+    try:
+        functions = get_functions_from_file(params["--functions_definition"])
+    except ValueError as err:
+        print(f"Error: {err}")
+        print(app_usage("functions"))
+        return
+
+    try:
+        promps = get_prompts_from_file(params["--input"])
+    except ValueError as err:
+        print(f"Error: {err}")
+        print(app_usage("promps"))
+        return
+
+    app: App = App(
+            promps,
+            functions,
+            output_file=params["--output"]
+        )
+
+    app.get_function_from_prompt()
 
 
 if __name__ == "__main__":

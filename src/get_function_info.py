@@ -1,3 +1,25 @@
+import numpy as np
+import re
+
+from enum import Enum
+from typing import Any
+from pydantic import BaseModel
+
+from llm_sdk.llm_sdk import Small_LLM_Model
+
+
+class ParamType(Enum):
+    NUMBER = "number"
+    STRING = "string"
+
+
+class FunctionDef(BaseModel):
+    name: str
+    description: str
+    parameters: list[tuple[str, ParamType]]
+    returns: ParamType
+
+
 def get_valid_mask(
             generated_so_far: str,
             valid_names: list[str],
@@ -20,16 +42,16 @@ def get_valid_mask(
     return mask
 
 
-def format_functions_for_prompt(functions: list[dict[str, Any]]) -> str:
+def format_functions_for_prompt(functions: list[FunctionDef]) -> str:
     """Format function definitions into a readable prompt block."""
     lines = []
     for fn in functions:
         # function name + description
-        lines.append(f"- {fn['name']}: {fn['description']}")
+        lines.append(f"- {fn.name}: {fn.description}")
         # parameters with types
-        params = fn.get("parameters", {})
-        for param_name, param_info in params.items():
-            lines.append(f"    {param_name} ({param_info['type']})")
+        params = fn.parameters
+        for param_name, param_info in params:
+            lines.append(f"    {param_name} ({param_info})")
     return "\n".join(lines)
 
 
@@ -58,7 +80,6 @@ parameters
     -The parameters must be in the order of the functions definition
 
 User request: {prompt}
-
 the parameters are: ("""
 
     token_ids: list[int] = model.encode(full_prompt)[0].tolist()
@@ -87,7 +108,9 @@ the parameters are: ("""
                 token_ids.append(logit_id)
                 break
 
-    parameters: list[float] = [float(nb) for nb in number_gen.split(",") if nb.strip()]
+    parameters: list[float] = [
+            float(nb) for nb in number_gen.split(",") if nb.strip()
+        ]
     return parameters
 
 
@@ -95,9 +118,9 @@ def get_function_name(
                 model: Small_LLM_Model,
                 vocab: dict[str, Any],
                 prompt: str,
-                functions: list[dict[str, Any]]
+                functions: list[FunctionDef]
         ) -> str:
-    functions_name = [f["name"] for f in functions]
+    functions_name = [f.name for f in functions]
     functions_desc = format_functions_for_prompt(functions)
 
     full_prompt = f"""You are a function calling assistant. \
@@ -129,7 +152,7 @@ The most appropriate function name is: """
             )
         logits[~mask] = -np.inf
 
-        next_token_id = np.argmax(logits)
+        next_token_id = int(np.argmax(logits))
 
         name += model.decode([next_token_id])
         tokens.append(next_token_id)
