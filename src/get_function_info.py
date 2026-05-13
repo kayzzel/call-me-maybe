@@ -11,6 +11,7 @@ from llm_sdk.llm_sdk import Small_LLM_Model
 class ParamType(Enum):
     NUMBER = "number"
     STRING = "string"
+    BOOL = "bool"
 
 
 class FunctionDef(BaseModel):
@@ -53,65 +54,6 @@ def format_functions_for_prompt(functions: list[FunctionDef]) -> str:
         for param_name, param_info in params:
             lines.append(f"    {param_name} ({param_info})")
     return "\n".join(lines)
-
-
-def get_parametters(
-            model: Small_LLM_Model,
-            function: dict[str, str | dict[str, str]],
-            prompt: str,
-        ) -> Any:
-    full_prompt = f"""You are a function calling assistant. \
-Your job is to return the parameters of the function in the \
-prompt in a tupple format
-
-function:
-    name: {function['name']}
-    description: {function['description']}
-    parameters: {function['parameters']}
-
-Rules:
-    -Ouput the parameters in a tupple format, in parenthesis and \
-only separated by a comas
-    -In the tupple put only the value of the parameters separated \
-by only a comas
-    -If there is a single parameter put just it inside the parentheses
-    -The parameters must have the corresponding type of the function \
-parameters
-    -The parameters must be in the order of the functions definition
-
-User request: {prompt}
-the parameters are: ("""
-
-    token_ids: list[int] = model.encode(full_prompt)[0].tolist()
-    number_regex: str = r"-?[\d]+(.[\d]+)?"
-    number_gen: str = ""
-    finished: bool = False
-    while not finished:
-
-        logits: list[float] = model.get_logits_from_input_ids(token_ids)
-        sorted_indexes = np.argsort(logits)[::-1]
-
-        for logit_id in sorted_indexes:
-
-            decoded: str = model.decode([logit_id])
-
-            if ")" in decoded:
-                number_gen += decoded.split(")")[0]
-                finished = True
-                break
-
-            elif (
-                re.match(number_regex, (number_gen + decoded))
-                or decoded == ","
-                    ):
-                number_gen += decoded
-                token_ids.append(logit_id)
-                break
-
-    parameters: list[float] = [
-            float(nb) for nb in number_gen.split(",") if nb.strip()
-        ]
-    return parameters
 
 
 def get_function_name(
@@ -158,3 +100,39 @@ The most appropriate function name is: """
         tokens.append(next_token_id)
 
     return name
+
+
+def get_function_json(
+                prompt: str,
+                function: FunctionDef
+          ) -> dict[str, str | dict[str, str | int | float]]:
+
+    from .json_utils import get_json_regex
+    json_regex = get_json_regex(function)
+
+    json_prompt: str = prompt.replace('"]', "'")
+    json_str: str = (
+        "{"
+        f'"prompt": "{json_prompt}",'
+        f'"name": "{function.name}",'
+        '"parameters": {'
+        f'"{function.parameters[0][0]}": '
+    )
+
+    full_prompt: str = (
+        "you are a function calling assistant. "
+        "Your job is to create a json that represent a function\n\n"
+        "json format:\n"
+        "{"
+        '"prompt": <the given prompt>,'
+        '"name": <the name of the function>,'
+        '"parameters": {"<parm name>": <param value>, ...}'
+        "}\n\n"
+        "function info:\n"
+        f"    name: {function.name}\n"
+        f"    description: {function.description}\n"
+        f"    parameters: {function.parameters}\n\n"
+        f"use prompt: {prompt}\n\n"
+        "json:\n"
+        f"{json_str}"
+    )
