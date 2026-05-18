@@ -1,7 +1,12 @@
 from typing import Any
 
 from llm_sdk.llm_sdk import Small_LLM_Model
-from .get_function_info import FunctionDef
+from .json_utils import get_json_from_file, write_json_to_file
+from .get_function_info import (
+        FunctionDef,
+        get_function_name,
+        get_function_json,
+)
 
 
 class App:
@@ -13,17 +18,46 @@ class App:
             ) -> None:
         self.__model: Small_LLM_Model = Small_LLM_Model()
 
+        vocab_file = self.__model.get_path_to_vocab_file()
+        vocab = get_json_from_file(vocab_file)
+        if isinstance(vocab, str):
+            raise ValueError(vocab)
+        self.__vocab: dict[str, int] = vocab
+
         self.__prompts: list[str] = prompts
         self.__functions: list[FunctionDef] = functions
 
-        self.__functions_info: list[dict[str, str | dict[str, str]]] = []
+        self.__functions_info: list[
+                dict[str, str | dict[str, str | int | float | bool]]
+                                    ] = []
         self.__output_file: str = output_file
 
-    def get_function_from_prompt(self) -> None:
-        pass
+    def write_functions_info(self) -> None:
 
-    def format_function_info(self) -> list[dict[str, Any]]:
-        return [{}]
+        if not self.__functions_info:
+            raise ValueError("The functions info has not been loaded")
+
+        try:
+            write_json_to_file(
+                    self.__output_file,
+                    self.__functions_info
+                )
+
+        except Exception as err:
+            raise ValueError(err)
+
+    def get_function_from_prompt(self) -> None:
+        for prompt in self.__prompts:
+            fn_name: str = get_function_name(
+                    self.__model, self.__vocab, prompt, self.__functions
+            )
+
+            function = [fn for fn in self.__functions if fn.name == fn_name][0]
+            function_json = get_function_json(
+                    self.__model, self.__vocab, prompt, function
+            )
+
+            self.__functions_info.append(function_json)
 
 
 def app_usage(usage: str) -> str:

@@ -1,7 +1,27 @@
-from typing import Any
+import regex
 
-from json import load
+from os import path
+from typing import Any
+from json import load, dump
+
 from .get_function_info import FunctionDef, ParamType
+
+
+def write_json_to_file(filename: str, json: Any) -> None:
+    try:
+        dirname = path.dirname(filename)
+
+        if dirname and not path.exists(dirname):
+            raise FileNotFoundError(
+                    "path to the file does not exist "
+                    f"(path: {filename})"
+                )
+
+        with open(filename,  "w") as file:
+            dump(json, file, indent=4)
+
+    except Exception as err:
+        raise ValueError(f"{err.__class__.__name__} Error: {err}")
 
 
 def get_json_from_file(filename: str) -> Any | str:
@@ -16,21 +36,20 @@ def get_json_from_file(filename: str) -> Any | str:
     return data
 
 
-def get_json_full_regex(function: FunctionDef) -> str:
+def get_json_regex(function: FunctionDef, prompt: str) -> str:
     """
-    Returns a single regex that validates a complete JSON output
+    Returns a regex that validates a complete JSON output
     for the given function definition.
 
-    Matches the entire json_str including the parts already written:
+    Matches:
     {
         "prompt": "...",
         "name": "fn_name",
-        "parameters": {"a": 2.0, "b": 3.0}
+        "parameters": {"param_name": <value>, ...}
     }
     """
-
     NUMBER_RE = r'-?(?:0|[1-9]\d*)(?:\.\d+)?'
-    STRING_RE = r'"[^"]*"'
+    STRING_RE = r'"[^"\\]*"'
     BOOL_RE = r'(?:true|false)'
 
     TYPE_MAP = {
@@ -39,19 +58,20 @@ def get_json_full_regex(function: FunctionDef) -> str:
         ParamType.BOOL:   BOOL_RE,
     }
 
-    # build each parameter fragment: "param_name": <value_regex>
+    # each tuple is (param_name, param_type)
     param_parts = []
     for param_name, param_type in function.parameters:
         param_parts.append(
-            r'\s*"' + re.escape(param_name) + r'"\s*:\s*' + TYPE_MAP[param_type]
+            r'"' + regex.escape(param_name, special_only=True, literal_spaces=True) +
+            r'": ' + TYPE_MAP[param_type]
         )
 
-    params_re = r',\s*'.join(param_parts)
+    params_re = r', '.join(param_parts)
 
-    return (
-        r'^\s*\{\s*\n'
-        r'\s*"prompt"\s*:\s*"[^"]*"\s*,\s*\n'
-        r'\s*"name"\s*:\s*"' + re.escape(function.name) + r'"\s*,\s*\n'
-        r'\s*"parameters"\s*:\s*\{' + params_re + r'\s*\}\s*\n'
-        r'\s*\}\s*$'
-    )
+    return (str(
+        r'^\{'
+        r'"prompt": "' + prompt.replace('"', '\\\\"') + r'", '
+        r'"name": "' + regex.escape(function.name, special_only=True, literal_spaces=True) + r'", '
+        r'"parameters": \{' + params_re + r'\}'
+        r'\}$'
+    ))

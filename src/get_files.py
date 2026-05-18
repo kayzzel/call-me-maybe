@@ -65,7 +65,7 @@ def pars_params(params: list[str]) -> dict[str, str]:
                     else files["--input"]
                 ),
             "--output": (
-                    "data/ouput/ouput.json"
+                    "data/output/output.json"
                     if not files["--output"]
                     else files["--output"]
                 ),

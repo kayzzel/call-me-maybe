@@ -30,13 +30,21 @@ def main() -> None:
         print(app_usage("promps"))
         return
 
-    app: App = App(
-            promps,
-            functions,
-            output_file=params["--output"]
-        )
+    try:
+        app: App = App(
+                promps,
+                functions,
+                output_file=params["--output"]
+            )
+    except ValueError as err:
+        print(f"Error: {err}")
 
     app.get_function_from_prompt()
+
+    try:
+        app.write_functions_info()
+    except ValueError as err:
+        print(f"Error: {err}")
 
 
 if __name__ == "__main__":

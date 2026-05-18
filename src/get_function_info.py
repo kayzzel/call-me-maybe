@@ -1,7 +1,8 @@
 import numpy as np
-import re
+import regex 
 
 from enum import Enum
+from json import loads
 from typing import Any
 from pydantic import BaseModel
 
@@ -58,7 +59,7 @@ def format_functions_for_prompt(functions: list[FunctionDef]) -> str:
 
 def get_function_name(
                 model: Small_LLM_Model,
-                vocab: dict[str, Any],
+                vocab: dict[str, int],
                 prompt: str,
                 functions: list[FunctionDef]
         ) -> str:
@@ -103,36 +104,63 @@ The most appropriate function name is: """
 
 
 def get_function_json(
+                model: Small_LLM_Model,
+                vocab: dict[str, int],
                 prompt: str,
                 function: FunctionDef
-          ) -> dict[str, str | dict[str, str | int | float]]:
+          ) -> dict[str, str | dict[str, str | int | float | bool]]:
+
+    json_prompt: str = regex.escape(
+            prompt, special_only=True, literal_spaces=True
+    )
+
+    if not function.parameters:
+        return {
+            "prompt": json_prompt,
+            "name": function.name,
+            "parameter": {}
+        }
 
     from .json_utils import get_json_regex
-    json_regex = get_json_regex(function)
+    json_regex = get_json_regex(function, json_prompt)
+    print(json_regex)
 
-    json_prompt: str = prompt.replace('"]', "'")
-    json_str: str = (
-        "{"
-        f'"prompt": "{json_prompt}",'
-        f'"name": "{function.name}",'
-        '"parameters": {'
-        f'"{function.parameters[0][0]}": '
-    )
-
+    json_str: str = ""
     full_prompt: str = (
-        "you are a function calling assistant. "
-        "Your job is to create a json that represent a function\n\n"
-        "json format:\n"
-        "{"
-        '"prompt": <the given prompt>,'
-        '"name": <the name of the function>,'
-        '"parameters": {"<parm name>": <param value>, ...}'
-        "}\n\n"
-        "function info:\n"
-        f"    name: {function.name}\n"
-        f"    description: {function.description}\n"
-        f"    parameters: {function.parameters}\n\n"
-        f"use prompt: {prompt}\n\n"
-        "json:\n"
-        f"{json_str}"
+            f"""Prompt: {prompt}
+Description: {function.description}
+Output: json with literal strings, complex numbers (float priority) \
+        and simple regex.
+Answer:
+{json_str}"""
     )
+
+    tokens: list[int] = model.encode(full_prompt).tolist()[0]
+
+    while not regex.match(json_regex, json_str):
+        logits = np.array(model.get_logits_from_input_ids(tokens))
+
+        next_token_id = -1
+        for token in np.argsort(logits)[::-1]:
+            token_str = model.decode([token])
+            if not token_str:
+                continue
+            candidate = json_str + token_str
+            if regex.match(json_regex, candidate, partial=True):
+                next_token_id = token
+                next_token_str = token_str
+                break
+
+        if next_token_id == -1:
+            raise ValueError(
+                f"No valid tokens found at: {repr(json_str)}"
+            )
+
+        json_str += next_token_str
+        print("'" + json_str + "'")
+        tokens.append(next_token_id)
+
+    print(prompt)
+    print(json_str)
+    parsed: dict[str, Any] = loads(json_str)
+    return parsed
