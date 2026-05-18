@@ -62,7 +62,9 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
     param_parts = []
     for param_name, param_type in function.parameters:
         param_parts.append(
-            r'"' + regex.escape(param_name, special_only=True, literal_spaces=True) +
+            r'"' + regex.escape(
+                param_name, special_only=True, literal_spaces=True
+                ) +
             r'": ' + TYPE_MAP[param_type]
         )
 
@@ -71,7 +73,9 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
     return (str(
         r'^\{'
         r'"prompt": "' + prompt.replace('"', '\\\\"') + r'", '
-        r'"name": "' + regex.escape(function.name, special_only=True, literal_spaces=True) + r'", '
+        r'"name": "' + regex.escape(
+            function.name, special_only=True, literal_spaces=True
+            ) + r'", '
         r'"parameters": \{' + params_re + r'\}'
         r'\}$'
     ))

@@ -1,5 +1,5 @@
 import numpy as np
-import regex 
+import regex
 
 from enum import Enum
 from json import loads

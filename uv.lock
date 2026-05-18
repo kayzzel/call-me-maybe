@@ -56,6 +56,7 @@ dependencies = [
     { name = "regex" },
     { name = "torch" },
     { name = "transformers" },
+    { name = "types-regex" },
 ]
 
 [package.dev-dependencies]
@@ -71,6 +72,7 @@ requires-dist = [
     { name = "regex", specifier = ">=2026.4.4" },
     { name = "torch", specifier = ">=2.11.0" },
     { name = "transformers", specifier = ">=5.8.0" },
+    { name = "types-regex", specifier = ">=2026.5.9.20260518" },
 ]
 
 [package.metadata.requires-dev]
@@ -1584,6 +1586,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e4/51/9aed62104cea109b820bbd6c14245af756112017d309da813ef107d42e7e/typer-0.25.1.tar.gz", hash = "sha256:9616eb8853a09ffeabab1698952f33c6f29ffdbceb4eaeecf571880e8d7664cc", size = 122276, upload-time = "2026-04-30T19:32:16.964Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3f/f9/2b3ff4e56e5fa7debfaf9eb135d0da96f3e9a1d5b27222223c7296336e5f/typer-0.25.1-py3-none-any.whl", hash = "sha256:75caa44ed46a03fb2dab8808753ffacdbfea88495e74c85a28c5eefcf5f39c89", size = 58409, upload-time = "2026-04-30T19:32:18.271Z" },
+]
+
+[[package]]
+name = "types-regex"
+version = "2026.5.9.20260518"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/40/a6/c725be71a35ff79f1fd20fd7d3ffacf5f4ad8295c5f7f49347cda6eb630d/types_regex-2026.5.9.20260518.tar.gz", hash = "sha256:7eb0f5ddf7a8f31dddcbef988a3bda80b45c9e5364f5e8fb09f0b8c745b0131b", size = 13389, upload-time = "2026-05-18T06:02:09.597Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/3a/dd7af990afe3c1e6c4395bf3526f74b13b8db165f3b8f027bf715b516e93/types_regex-2026.5.9.20260518-py3-none-any.whl", hash = "sha256:d008c8f7f65c310fdfa746986e922ca2a5aa30bdca567571d69f5483390bda33", size = 11139, upload-time = "2026-05-18T06:02:08.76Z" },
 ]
 
 [[package]]

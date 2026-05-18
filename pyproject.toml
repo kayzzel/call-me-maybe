@@ -10,6 +10,7 @@ dependencies = [
     "regex>=2026.4.4",
     "torch>=2.11.0",
     "transformers>=5.8.0",
+    "types-regex>=2026.5.9.20260518",
 ]
 
 [dependency-groups]
