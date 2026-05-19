@@ -40,7 +40,7 @@
   ```make run```<br>
 
   + Run the program with custom files:<br>
-  ```make run FUNCTIONS=<file> INPUT=<file> OUTPUT=<file>```<br>
+  ```make run FUNCTIONS=<file> INPUT=<file> OUTPUT=<file> OTHER=<other flag(s)/info>```<br>
 
   + Run the program in debug mode:<br>
   ```make debug```<br>
@@ -48,95 +48,60 @@
 </details>
 
 <details>
-  <summary><h4>Algorithm</summary>
+  <summary><h4>Usage Example</h4></summary>
 
-___
-## Core Strategy
+  ```make run FUNCTIONS=example_func.json INPUT=example_input.json```<br><br>
+  ```
+example_func.json
 
-**Sequential Pathfinding:** Find path for each drone one at a time, maintaining a shared reservation table to prevent capacity conflicts.
+[
+  {
+    "name": "fn_add_numbers",
+    "description": "Add two numbers together and return their sum.",
+    "parameters": {
+      "a": {
+        "type": "number"
+      },
+      "b": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_greet",
+    "description": "Generate a greeting message for a person by name.",
+    "parameters": {
+      "name": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  }
+]
+  ```
+  ```
+example_input.json
 
-## Key Components
-
-### 1. ExploringDrone (Search State)
-- `path`: Hubs visited (`None` = in-transit to restricted zone)
-- `connections`: Connections taken
-- `actual_hub`: Current location
-- `in_transit_to_restricted`: Flag for 2-turn restricted zone movement
-
-### 2. Turn (Reservation Table)
-Tracks per-turn resource usage:
-- `moves`: Connections used this turn
-- `hubs`: Drone occupancy per hub `{name, drones_in, max_drones}`
-
-Prevents capacity violations across all drones.
-
-### FOR each drone:
-
-##### 1. Initialize exploring_drone at start_hub
-##### 2. WHILE not at end_hub:
-
-  - Try all connections from current positions
-  - Check reservations (capacity constraints)
-  - Generate new states for valid moves
-  - Keep drones that wait (capacity blocked)
-  - Deduplicate: keep shortest path per hub
-
-
-##### 3. Select first drone reaching end_hub
-##### 4. Record path in reservation tables
-
-## Special Cases
-
-**Restricted Zones (2 turns):**
-- Turn 1: Commit to move, stay at origin, mark in-transit
-- Turn 2: MUST complete or fail (no waiting on connection)
-
-**Waiting:** Drones stay at current hub when blocked, path appends `None`
-
-**Cycle Prevention:** No revisiting hubs (`if next_hub in path: reject`)
-
-**Deduplication:** Keep only shortest path per hub location
-
-## Complexity
-
-- **Time:** O(N × T × H × C) - N drones, T turns, H hubs, C connections/hub
-- **Space:** O(T × H) - Turn tables + O(H) active exploring drones
-- **Optimization:** Deduplication limits exploring drones to O(H) per tur
-
-</details>
-
-<details>
-  <summary><h4>Visual representation</summary>
-    
-___
-#### **Core Features**
-
-* **Adaptive Map Engine:**
-    * A custom-rendered canvas using `QPainter`
-    * **Intuitive Navigation:** support for **mouse-wheel zooming** and **click-and-drag panning**, allowing for exploration of hub networks.
-* **Dynamic Hub Symbology:**
-    * Visual differentiation of zone types through different geometries: **Circles** (Normal), **Triangles** (Priority), and **Squares** (Restricted) and **Cross** (Blocked).
-    * Supports custom color-coding and "Rainbow" status indicators for specialized map nodes.
-* **Playback & Temporal Control:**
-    * A control bar featuring **Play/Pause**, **Step-by-Step** navigation, and **Instant Restart**.
-    * Automated simulation timer with adjustable intervals for real-time monitoring.
-    * A map switcher to easyli test different maps
-* **Advanced Drone Tracking:**
-    * **Path Trails:** Persistent dashed "snail trails" that visualize each drone's historical trajectory.
-    * **Transit Logic:** Explicit visual rendering of drones in "mid-point" states when entering restricted 2-turn zones.
-* **Live Telemetry Dashboard:**
-    * A dynamic info panel providing text-based summaries of drone coordinates, fleet status, and active transit operations.
-
----
-
-#### **Technical Implementation**
-
-| Component | Responsibility |
-| :--- | :--- |
-| **`MapWidget`** | Handles coordinate scaling, zoom mathematics, and primitive shape rendering. |
-| **`PannableScrollArea`** | Manages the "infinite canvas" interaction logic and mouse event overrides. |
-| **`PlayerToolBar`** | Controls the simulation state machine and playback signals. |
-| **`MainWindow`** | Orchestrates data flow between the pathfinding algorithm and the UI. |
+[
+  {
+    "prompt": "What is the sum of 2 and 3?"
+  },
+  {
+    "prompt": "What is the sum of 265 and 345?"
+  },
+  {
+    "prompt": "Greet shrek"
+  },
+  {
+    "prompt": "Greet john"
+  }
+]
+  ```
 
 </details>
 
