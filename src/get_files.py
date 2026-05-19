@@ -8,6 +8,16 @@ from .json_utils import get_json_from_file
 
 
 def pars_params(params: list[str]) -> dict[str, str]:
+    """
+    Parse command-line parameters into a dictionary of configuration paths.
+
+    Parameters:
+        params: List of raw command-line argument strings (typically sys.argv).
+
+    Returns:
+        Dictionary containing parsed or default file paths and verbosity
+        flag status.
+    """
     params = params[1::]
 
     PATH_REGEX = re.compile(
@@ -84,6 +94,16 @@ def pars_params(params: list[str]) -> dict[str, str]:
 
 
 def get_functions_from_file(filename: str) -> list[FunctionDef]:
+    """
+    Load and validate function definitions from a specified JSON file.
+
+    Parameters:
+        filename: Path to the JSON file containing function definitions.
+
+    Returns:
+        List of validated FunctionDef schemas.
+    """
+
     functions_def: list[FunctionDef] = []
     functions: Any | str = get_json_from_file(filename)
 
@@ -144,6 +164,16 @@ def get_functions_from_file(filename: str) -> list[FunctionDef]:
 
 
 def get_prompts_from_file(filename: str) -> list[str]:
+    """
+    Extract a list of raw user prompts from a structured JSON file.
+
+    Parameters:
+        filename: Path to the JSON file containing wrapped prompt objects.
+
+    Returns:
+        List of extracted prompt strings.
+    """
+
     prompts: list[str] = []
     prompts_info: Any | str = get_json_from_file(filename)
 

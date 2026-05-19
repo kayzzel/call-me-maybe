@@ -10,12 +10,22 @@ from llm_sdk.llm_sdk import Small_LLM_Model
 
 
 class ParamType(Enum):
+    """Parameter type enumeration for function definitions."""
     NUMBER = "number"
     STRING = "string"
     BOOL = "bool"
 
 
 class FunctionDef(BaseModel):
+    """
+    Function definition schema.
+
+    Attributes:
+        name: Function name.
+        description: Function description.
+        parameters: List of (parameter_name, parameter_type) tuples.
+        returns: Return type of the function.
+    """
     name: str
     description: str
     parameters: list[tuple[str, ParamType]]
@@ -28,6 +38,18 @@ def get_valid_mask(
             id_to_token_array: list[str],
             target_vocab_size: int
         ) -> np.ndarray:
+    """
+    Create a mask for valid next tokens based on valid function names.
+
+    Parameters:
+        generated_so_far: String generated so far.
+        valid_names: List of valid function names.
+        id_to_token_array: Array mapping token IDs to token strings.
+        target_vocab_size: Size of the vocabulary.
+
+    Returns:
+        Boolean array mask indicating valid tokens.
+    """
 
     candidates = np.char.add(generated_so_far, id_to_token_array)
 
@@ -45,7 +67,15 @@ def get_valid_mask(
 
 
 def format_functions_for_prompt(functions: list[FunctionDef]) -> str:
-    """Format function definitions into a readable prompt block."""
+    """
+    Format function definitions into a readable prompt block.
+
+    Parameters:
+        functions: List of function definitions.
+
+    Returns:
+        Formatted string with function names, descriptions, and parameters.
+    """
     lines = []
     for fn in functions:
         # function name + description
@@ -63,6 +93,19 @@ def get_function_name(
                 prompt: str,
                 functions: list[FunctionDef]
         ) -> str:
+    """
+    Identify the most appropriate function name for a given prompt.
+
+    Parameters:
+        model: Language model instance.
+        vocab: Token vocabulary dictionary.
+        prompt: User prompt to process.
+        functions: Available function definitions.
+
+    Returns:
+        Name of the selected function.
+    """
+
     functions_name = [f.name for f in functions]
     functions_desc = format_functions_for_prompt(functions)
 
@@ -109,6 +152,18 @@ def get_function_json(
                 function: FunctionDef,
                 verbose: bool
           ) -> dict[str, str | dict[str, str | int | float | bool]]:
+    """
+    Extract function parameters from prompt as JSON.
+
+    Parameters:
+        model: Language model instance.
+        prompt: User prompt to extract parameters from.
+        function: Function definition to match against.
+        verbose: Enable verbose output.
+
+    Returns:
+        Dictionary with prompt, function name, and extracted parameters.
+    """
 
     json_prompt: str = regex.escape(
             prompt, special_only=True, literal_spaces=True

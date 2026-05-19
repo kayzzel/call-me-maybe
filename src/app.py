@@ -13,9 +13,17 @@ from .get_function_info import (
 
 
 def timing_decorator(appear: bool) -> Callable[[Any], Any]:
+    """
+    Decorator that measures function execution time.
+
+    Parameters:
+        appear: If True, prints execution time in minutes and seconds.
+
+    Returns:
+        Decorator function that wraps the target function with timing.
+    """
 
     def decorator(func: Callable[[Any], Any]) -> Any:
-        """Measure execution time of functions"""
 
         @wraps(func)
         def wrapper(*args: list[Any], **kwargs: list[Any]) -> Any:
@@ -38,6 +46,18 @@ def timing_decorator(appear: bool) -> Callable[[Any], Any]:
 
 
 class App:
+    """
+    Processes prompts to match them with functions using a language model.
+
+    Attributes:
+        __model: Small language model for function matching.
+        __vocab: Token vocabulary dictionary.
+        __prompts: User prompts to process.
+        __functions: Available function definitions.
+        __functions_info: Generated function call information.
+        __output_file: Output JSON file path.
+        __verbose: Enable verbose output.
+    """
     def __init__(
             self,
             prompts: list[str],
@@ -64,6 +84,9 @@ class App:
         self.__verbose = verbose
 
     def write_functions_info(self) -> None:
+        """
+        Write generated function information to output file.
+        """
 
         if not self.__functions_info:
             raise ValueError("The functions info has not been loaded")
@@ -78,6 +101,10 @@ class App:
             raise ValueError(err)
 
     def get_function_from_prompt(self) -> None:
+        """
+        Process prompts to identify matching functions and extract parameters.
+        and set them in self.__functions_info
+        """
 
         @timing_decorator(self.__verbose)
         def get_function_info_from_prompt() -> None:
@@ -107,6 +134,16 @@ class App:
 
 
 def app_usage(usage: str) -> str:
+    """
+    Return usage documentation for the application.
+
+    Parameters:
+        usage: Type of documentation ("params", "functions", or "prompts").
+
+    Returns:
+        Formatted usage string, or empty string if type not recognized.
+    """
+
     if usage == "params":
         return (
                 """

@@ -8,6 +8,16 @@ from .get_function_info import FunctionDef, ParamType
 
 
 def write_json_to_file(filename: str, json: Any) -> None:
+    """
+    Write a JSON-serializable object to a file, creating directories if needed.
+
+    Parameters:
+        filename: Path to the target output file.
+        json: Any JSON-serializable data structure to dump.
+
+    Returns:
+        None
+    """
     try:
         dirname = path.dirname(filename)
 
@@ -22,6 +32,16 @@ def write_json_to_file(filename: str, json: Any) -> None:
 
 
 def get_json_from_file(filename: str) -> Any | str:
+    """
+    Read and parse JSON content from a specified file.
+
+    Parameters:
+        filename: Path to the JSON file to read.
+
+    Returns:
+        The parsed JSON data structure, or an error message string
+        if reading fails.
+    """
     data: dict[str, Any]
     try:
         with open(filename, "r") as f:
@@ -44,6 +64,14 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
         "name": "fn_name",
         "parameters": {"param_name": <value>, ...}
     }
+
+    Parameters:
+        function: The function definition schema containing parameters.
+        prompt: The original user prompt to embed into the metadata.
+
+    Returns:
+        A strict regular expression string that matches the expected
+        JSON structure.
     """
     NUMBER_RE = r'-?(?:0|[1-9]\d*)(?:\.\d+)?'
     STRING_RE = r'"[^"\\]*"'
