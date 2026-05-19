@@ -105,14 +105,16 @@ The most appropriate function name is: """
 
 def get_function_json(
                 model: Small_LLM_Model,
-                vocab: dict[str, int],
                 prompt: str,
-                function: FunctionDef
+                function: FunctionDef,
+                verbose: bool
           ) -> dict[str, str | dict[str, str | int | float | bool]]:
 
     json_prompt: str = regex.escape(
             prompt, special_only=True, literal_spaces=True
     )
+    if verbose:
+        print("\n\n\033[96mGeting function for prompt:", prompt, "\033[0m\n")
 
     if not function.parameters:
         return {
@@ -123,7 +125,6 @@ def get_function_json(
 
     from .json_utils import get_json_regex
     json_regex = get_json_regex(function, json_prompt)
-    print(json_regex)
 
     json_str: str = ""
     full_prompt: str = (
@@ -157,10 +158,9 @@ Answer:
             )
 
         json_str += next_token_str
-        print("'" + json_str + "'")
+        if verbose:
+            print(json_str)
         tokens.append(next_token_id)
 
-    print(prompt)
-    print(json_str)
     parsed: dict[str, Any] = loads(json_str)
     return parsed

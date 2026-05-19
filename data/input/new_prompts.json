@@ -1,0 +1,32 @@
+[
+  {
+    "prompt": "How much is a $120 jacket if it has a 25% discount?"
+  },
+  {
+    "prompt": "Calculate the final price of an item that costs 89.99 with a 15 percent discount."
+  },
+  {
+    "prompt": "Convert 150 USD to EUR if the exchange rate is 0.92."
+  },
+  {
+    "prompt": "If 1 USD is equal to 155 JPY, how many Yen do I get for 400 Dollars?"
+  },
+  {
+    "prompt": "How many vowels are there in the word 'education'?"
+  },
+  {
+    "prompt": "Count the number of vowels in 'Beautiful weather today!'"
+  },
+  {
+    "prompt": "Check if the word 'radar' is a palindrome."
+  },
+  {
+    "prompt": "Is 'hello world' a palindrome?"
+  },
+  {
+    "prompt": "What is the email domain for 'user.name+test@example.co.uk'?"
+  },
+  {
+    "prompt": "Extract the domain from support@github.com."
+  }
+]

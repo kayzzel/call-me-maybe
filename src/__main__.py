@@ -34,7 +34,8 @@ def main() -> None:
         app: App = App(
                 promps,
                 functions,
-                output_file=params["--output"]
+                output_file=params["--output"],
+                verbose=bool(params["--verbose"])
             )
     except ValueError as err:
         print(f"Error: {err}")

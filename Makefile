@@ -6,9 +6,10 @@ SRC			=	src
 VENV		=	.venv
 MODEL		=	llm_sdk
 
-FUNCIONS	?=	"data/input/functions_definition.json"
+FUNCTIONS	?=	"data/input/functions_definition.json"
 INPUT		?=	"data/input/function_calling_tests.json"
 OUTPUT		?=	"data/output/output.json"
+OTHER		?=
 
 EXCLUDE				=	--exclude $(VENV),$(MODEL)
 EXCLUDE_MYPY 		=	--exclude $(VENV) --exclude $(MODEL)
@@ -23,10 +24,10 @@ install: check_uv
 	uv sync
 
 run: check_uv
-	@uv run python -m $(SRC) --functions_definition $(FUNCIONS) --input $(INPUT) --output $(OUTPUT)
+	@uv run python -m $(SRC) --functions_definition $(FUNCTIONS) --input $(INPUT) --output $(OUTPUT) $(OTHER)
 
 debug: check_uv
-	@uv run python -m pdb $(SRC) --functions_definition $(FUNCIONS) --input $(INPUT) --output $(OUTPUT)
+	@uv run python -m pdb $(SRC) --functions_definition $(FUNCTIONS) --input $(INPUT) --output $(OUTPUT)
 
 test: check_uv
 	uv run pytest tests/ -v
@@ -72,7 +73,7 @@ help:
 	@echo "Available rules:"
 	@echo "  all        	- Install and run"
 	@echo "  install    	- Install dependencies"
-	@echo "  run        	- Run the project (MAP=... to override map)"
+	@echo "  run        	- Run the project (FUNCTIONS=... INPUT=... OUTPUT=... to overwrite the files)"
 	@echo "  debug      	- Run with pdb debugger"
 	@echo "  test       	- Run tests"
 	@echo "  test-cov   	- Run tests with coverage report"

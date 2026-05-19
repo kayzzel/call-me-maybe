@@ -1,6 +1,6 @@
 import regex
 
-from os import path
+from os import makedirs, path
 from typing import Any
 from json import load, dump
 
@@ -12,10 +12,7 @@ def write_json_to_file(filename: str, json: Any) -> None:
         dirname = path.dirname(filename)
 
         if dirname and not path.exists(dirname):
-            raise FileNotFoundError(
-                    "path to the file does not exist "
-                    f"(path: {filename})"
-                )
+            makedirs(dirname, exist_ok=True)
 
         with open(filename,  "w") as file:
             dump(json, file, indent=4)

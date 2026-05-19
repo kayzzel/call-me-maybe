@@ -1,0 +1,68 @@
+[
+  {
+    "name": "fn_calculate_discount",
+    "description": "Calculate the final price after applying a discount percentage to an original price.",
+    "parameters": {
+      "original_price": {
+        "type": "number"
+      },
+      "discount_percentage": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_convert_currency",
+    "description": "Convert an amount from one currency to another using a given exchange rate.",
+    "parameters": {
+      "amount": {
+        "type": "number"
+      },
+      "exchange_rate": {
+        "type": "number"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_count_vowels",
+    "description": "Count the total number of vowels (a, e, i, o, u) in a text string.",
+    "parameters": {
+      "text": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "number"
+    }
+  },
+  {
+    "name": "fn_is_palindrome",
+    "description": "Determine whether a given text string reads the same backward as forward.",
+    "parameters": {
+      "text": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "bool"
+    }
+  },
+  {
+    "name": "fn_get_domain_from_email",
+    "description": "Extract and return the domain name from a given email address.",
+    "parameters": {
+      "email": {
+        "type": "string"
+      }
+    },
+    "returns": {
+      "type": "string"
+    }
+  }
+]

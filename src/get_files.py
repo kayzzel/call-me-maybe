@@ -27,18 +27,24 @@ def pars_params(params: list[str]) -> dict[str, str]:
 
     param_index: int = 0
 
-    files: dict[str, str | None] = {
+    parameters: dict[str, str | None] = {
             "--functions_definition": None,
             "--input": None,
             "--output": None,
+            "--verbose": None
     }
 
-    while param_index < 6:
-        if params[param_index] not in files.keys():
+    while param_index < len(params):
+        if params[param_index] == "--verbose":
+            parameters["--verbose"] = "True"
+            param_index += 1
+            continue
+
+        if params[param_index] not in parameters.keys():
             print(params[param_index])
             raise ValueError("Invalid usage")
 
-        if files[params[param_index]] is not None:
+        if parameters[params[param_index]] is not None:
             raise ValueError("Redefinition of a param")
 
         if len(params) <= param_index + 1:
@@ -50,25 +56,30 @@ def pars_params(params: list[str]) -> dict[str, str]:
                 ):
             raise ValueError("Invalid file format")
 
-        files[params[param_index]] = params[param_index + 1]
+        parameters[params[param_index]] = params[param_index + 1]
         param_index += 2
 
     return {
             "--functions_definition": (
                     "data/input/functions_definition.json"
-                    if not files["--functions_definition"]
-                    else files["--functions_definition"]
+                    if not parameters["--functions_definition"]
+                    else parameters["--functions_definition"]
                 ),
             "--input": (
                     "data/input/function_calling_tests.json"
-                    if not files["--input"]
-                    else files["--input"]
+                    if not parameters["--input"]
+                    else parameters["--input"]
                 ),
             "--output": (
                     "data/output/output.json"
-                    if not files["--output"]
-                    else files["--output"]
+                    if not parameters["--output"]
+                    else parameters["--output"]
                 ),
+            "--verbose": (
+                    ""
+                    if not parameters["--verbose"]
+                    else parameters["--verbose"]
+                )
     }
 
 

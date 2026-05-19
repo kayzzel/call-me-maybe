@@ -1,3 +1,8 @@
+from time import time
+from typing import Any, Callable
+from functools import wraps
+from rich.progress import track
+
 from llm_sdk.llm_sdk import Small_LLM_Model
 from .json_utils import get_json_from_file, write_json_to_file
 from .get_function_info import (
@@ -7,12 +12,38 @@ from .get_function_info import (
 )
 
 
+def timing_decorator(appear: bool) -> Callable[[Any], Any]:
+
+    def decorator(func: Callable[[Any], Any]) -> Any:
+        """Measure execution time of functions"""
+
+        @wraps(func)
+        def wrapper(*args: list[Any], **kwargs: list[Any]) -> Any:
+            start = time()
+            result = func(*args, **kwargs)
+            end = time()
+            taken = end - start
+            minuntes = int(taken // 60)
+            seconds = int(taken % 60)
+            if appear:
+                print(
+                    f"\033[92m{func.__name__} took",
+                    f"{minuntes} min and" if minuntes else "",
+                    f"{seconds} seconds\033[0m"
+                )
+            return result
+        return wrapper
+
+    return decorator
+
+
 class App:
     def __init__(
             self,
             prompts: list[str],
             functions: list[FunctionDef],
-            output_file: str
+            output_file: str,
+            verbose: bool
             ) -> None:
         self.__model: Small_LLM_Model = Small_LLM_Model()
 
@@ -30,6 +61,8 @@ class App:
                                     ] = []
         self.__output_file: str = output_file
 
+        self.__verbose = verbose
+
     def write_functions_info(self) -> None:
 
         if not self.__functions_info:
@@ -45,17 +78,32 @@ class App:
             raise ValueError(err)
 
     def get_function_from_prompt(self) -> None:
-        for prompt in self.__prompts:
-            fn_name: str = get_function_name(
-                    self.__model, self.__vocab, prompt, self.__functions
-            )
 
-            function = [fn for fn in self.__functions if fn.name == fn_name][0]
-            function_json = get_function_json(
-                    self.__model, self.__vocab, prompt, function
-            )
+        @timing_decorator(self.__verbose)
+        def get_function_info_from_prompt() -> None:
 
-            self.__functions_info.append(function_json)
+            for prompt in track(self.__prompts, description="Processing..."):
+                fn_name: str = get_function_name(
+                        self.__model,
+                        self.__vocab,
+                        prompt,
+                        self.__functions
+                )
+
+                function = [
+                        fn for fn in self.__functions if fn.name == fn_name
+                    ][0]
+
+                function_json = get_function_json(
+                        self.__model,
+                        prompt,
+                        function,
+                        self.__verbose
+                )
+
+                self.__functions_info.append(function_json)
+
+        get_function_info_from_prompt()
 
 
 def app_usage(usage: str) -> str:
@@ -64,13 +112,14 @@ def app_usage(usage: str) -> str:
                 """
 usage:
     uv run python -m src [--functions_definition <function_definition_file>] \
-[--input <input_file>] [-- output <output_file>]
+[--input <input_file>] [--output <output_file>] [--verbose]
 
     --functions_definition : the functions that will be picked to find \
 the right one
     --input                : the file that contain the prompts
     --output               : the file in wich all the function chosen \
 will be put
+    --verbose              : activate verbose mode
 """
             )
 
