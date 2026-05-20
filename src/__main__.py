@@ -19,15 +19,23 @@ def main() -> None:
     try:
         functions = get_functions_from_file(params["--functions_definition"])
     except ValueError as err:
-        print(f"Error: {err}")
+        print(
+            "Functions definition parsing error in "
+            f"\"{params['--functions_definition']}\"\n"
+            f"Error: {err}"
+        )
         print(app_usage("functions"))
         return
 
     try:
         promps = get_prompts_from_file(params["--input"])
     except ValueError as err:
-        print(f"Error: {err}")
-        print(app_usage("promps"))
+        print(
+            "Prompts parsing error in "
+            f"\"{params['--input']}\"\n"
+            f"Error: {err}"
+        )
+        print(app_usage("prompts"))
         return
 
     try:
