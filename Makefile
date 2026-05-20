@@ -8,7 +8,7 @@ MODEL		=	llm_sdk
 
 FUNCTIONS	?=	"data/input/functions_definition.json"
 INPUT		?=	"data/input/function_calling_tests.json"
-OUTPUT		?=	"data/output/output.json"
+OUTPUT		?=	"data/output/function_calling_results.json"
 OTHER		?=
 
 EXCLUDE				=	--exclude $(VENV),$(MODEL)
