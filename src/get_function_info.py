@@ -12,8 +12,9 @@ from llm_sdk.llm_sdk import Small_LLM_Model
 class ParamType(Enum):
     """Parameter type enumeration for function definitions."""
     NUMBER = "number"
+    INTEGER = "integer"
     STRING = "string"
-    BOOL = "bool"
+    BOOL = "boolean"
 
 
 class FunctionDef(BaseModel):

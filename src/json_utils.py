@@ -74,11 +74,13 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
         JSON structure.
     """
     NUMBER_RE = r'-?(?:0|[1-9]\d*)(?:\.\d+)?'
+    INTEGER_RE = r'-?(?:0|[1-9]\d*)'
     STRING_RE = r'"[^"\\]*"'
     BOOL_RE = r'(?:true|false)'
 
     TYPE_MAP = {
         ParamType.NUMBER: NUMBER_RE,
+        ParamType.INTEGER: INTEGER_RE,
         ParamType.STRING: STRING_RE,
         ParamType.BOOL:   BOOL_RE,
     }

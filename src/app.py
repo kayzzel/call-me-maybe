@@ -170,12 +170,12 @@ usage:
         "description"
         "parameters": {
             <param name in str>: {
-              "type": <'string' or 'number'>
+              "type": <'string' or 'number' or 'integer' or 'bool'>
             },
             ...
         }
         "returns": {
-          "type": <'string' or 'number'>
+          "type": <'string' or 'number' or 'integer' or 'bool'>
         }
     },
     ...
