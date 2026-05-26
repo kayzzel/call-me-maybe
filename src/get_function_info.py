@@ -187,7 +187,7 @@ def get_function_json(
     full_prompt: str = (
             f"""Prompt: {prompt}
 Description: {function.description}
-Output: json with literal strings, complex numbers (float priority) \
+Output: json with literal strings, complex numbers \
         and simple regex.
 Answer:
 {json_str}"""

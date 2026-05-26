@@ -12,7 +12,7 @@
     },
     "returns": {
       "type": "number"
-    }
+	}
   },
   {
     "name": "fn_convert_currency",
@@ -50,7 +50,7 @@
       }
     },
     "returns": {
-      "type": "bool"
+      "type": "boolean"
     }
   },
   {
