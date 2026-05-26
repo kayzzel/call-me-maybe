@@ -73,9 +73,9 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
         A strict regular expression string that matches the expected
         JSON structure.
     """
-    NUMBER_RE = r'-?(?:0|[1-9]\d*)(?:\.\d+)?'
-    INTEGER_RE = r'-?(?:0|[1-9]\d*)'
-    STRING_RE = r'"[^"\\]*"'
+    NUMBER_RE = r'-?(?:0|[1-9]\d{0,100})(?:\.\d{1,100})?'
+    INTEGER_RE = r'-?(?:0|[1-9]\d{0,100})'
+    STRING_RE = r'"(?:[^"\\]|\\.){0,1000}"'
     BOOL_RE = r'(?:true|false)'
 
     TYPE_MAP = {
@@ -99,7 +99,7 @@ def get_json_regex(function: FunctionDef, prompt: str) -> str:
 
     return (str(
         r'^\{'
-        r'"prompt": "' + prompt.replace('"', '\\\\"') + r'", '
+        r'"prompt": ' + prompt + r', '
         r'"name": "' + regex.escape(
             function.name, special_only=True, literal_spaces=True
             ) + r'", '

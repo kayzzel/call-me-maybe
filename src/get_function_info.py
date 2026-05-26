@@ -2,7 +2,7 @@ import numpy as np
 import regex
 
 from enum import Enum
-from json import loads
+from json import loads, dumps
 from typing import Any
 from pydantic import BaseModel
 
@@ -166,8 +166,9 @@ def get_function_json(
         Dictionary with prompt, function name, and extracted parameters.
     """
 
-    json_prompt: str = regex.escape(
-            prompt, special_only=True, literal_spaces=True
+    json_prompt: str = dumps(prompt)
+    json_prompt = regex.escape(
+            json_prompt, special_only=True, literal_spaces=True
     )
     if verbose:
         print("\n\n\033[96mGeting function for prompt:", prompt, "\033[0m\n")
