@@ -3,7 +3,7 @@ from typing import Any, Callable
 from functools import wraps
 from rich.progress import track
 
-from llm_sdk import Small_LLM_Model
+from llm_sdk.llm_sdk import Small_LLM_Model
 from .json_utils import get_json_from_file, write_json_to_file
 from .get_function_info import (
         FunctionDef,
@@ -170,12 +170,12 @@ usage:
         "description"
         "parameters": {
             <param name in str>: {
-              "type": <'string' or 'number'>
+              "type": <'string' or 'number' or 'integer' or 'boolean'>
             },
             ...
         }
         "returns": {
-          "type": <'string' or 'number'>
+          "type": <'string' or 'number' or 'integer' or 'boolean'>
         }
     },
     ...

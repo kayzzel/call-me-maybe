@@ -113,6 +113,12 @@ def get_functions_from_file(filename: str) -> list[FunctionDef]:
     if not isinstance(functions, list):
         raise ValueError("The functions must be an array of dict")
 
+    if not functions:
+        raise ValueError(
+            "No functions definitions given, "
+            "must give at least one"
+        )
+
     for fn in functions:
         params: list[tuple[str, ParamType]] = []
 
@@ -182,6 +188,9 @@ def get_prompts_from_file(filename: str) -> list[str]:
 
     if not isinstance(prompts_info, list):
         raise ValueError("The prompts must be an array of dict")
+
+    if not prompts_info:
+        raise ValueError("No prompt given, must give at least one")
 
     for pr in prompts_info:
 
